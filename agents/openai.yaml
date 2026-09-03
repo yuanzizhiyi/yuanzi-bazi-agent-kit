@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yuanzi Basic Bazi"
+  short_description: "Calculate a private, deterministic basic Bazi chart"
+  default_prompt: "Use $yuanzi-basic-bazi to calculate and clearly label the factual structure of my basic Bazi chart."

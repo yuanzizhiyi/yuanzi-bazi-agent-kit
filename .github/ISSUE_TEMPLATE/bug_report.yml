@@ -1,0 +1,47 @@
+name: Bug report
+description: Report a reproducible calculation, CLI, MCP, or Skill defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a reproducible defect. Use synthetic data and remove all private information.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - TypeScript API
+        - CLI
+        - MCP server
+        - Agent Skill
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal synthetic reproduction
+      description: Include calendar type, date/time, IANA time zone, correction mode, and day boundary when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed names, account data, credentials, and other private information.
+          required: true
