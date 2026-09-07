@@ -1,4 +1,4 @@
-![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](docs/images/readme-cover.png)
+![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](https://raw.githubusercontent.com/yuanzizhiyi/yuanzi-bazi-agent-kit/main/docs/images/readme-cover.png)
 
 # Yuanzi Bazi Agent Kit
 
@@ -11,11 +11,13 @@ The public contract is intentionally narrow: calendar conversion, time-zone and 
 
 [Chinese documentation](README.zh-CN.md)
 
+**Topics / 主题：** 八字排盘 · Bazi / Four Pillars · 真太阳时 / True Solar Time · 历法转换 / Calendar Conversion · MCP · Agent Skill · 本地命盘图片 / Local Chart Images
+
 ## Example chart
 
 Illustrative chart. Birth date, time and location are hidden; no customer data is used.
 
-<img src="docs/images/chart-example-en.png" alt="Example chart" width="560" />
+<img src="https://raw.githubusercontent.com/yuanzizhiyi/yuanzi-bazi-agent-kit/main/docs/images/chart-example-en.png" alt="Example chart" width="560" />
 
 ## Why this kit exists
 

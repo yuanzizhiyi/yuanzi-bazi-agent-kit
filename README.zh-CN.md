@@ -1,4 +1,4 @@
-![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](docs/images/readme-cover.png)
+![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](https://raw.githubusercontent.com/yuanzizhiyi/yuanzi-bazi-agent-kit/main/docs/images/readme-cover.png)
 
 # 元梓基础八字 Agent Kit
 
@@ -9,11 +9,13 @@
 
 公开范围刻意保持精简：历法转换、时区与真太阳时、明确的换日口径、四柱、日主、十神、藏干和未加权五行计数。稳定结果协议为 `yuanzi-basic-bazi/v1`。
 
+**主题 / Topics：** 八字排盘 · Bazi / Four Pillars · 真太阳时 / True Solar Time · 历法转换 / Calendar Conversion · MCP · Agent Skill · 本地命盘图片 / Local Chart Images
+
 ## 命盘案例
 
 演示命盘，出生日期、时刻与地点已隐藏；不对应任何客户资料。
 
-<img src="docs/images/chart-example-zh-CN.png" alt="命盘案例" width="560" />
+<img src="https://raw.githubusercontent.com/yuanzizhiyi/yuanzi-bazi-agent-kit/main/docs/images/chart-example-zh-CN.png" alt="命盘案例" width="560" />
 
 ## 为什么做这个工具
 
