@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import test from 'node:test';
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const runCli = async (args: string[], stdin = '') => new Promise<{
   code: number | null;
@@ -109,4 +112,28 @@ test('CLI lists all hosted capabilities with defaults', async () => {
   const result = await runCli(['capabilities']);
   assert.equal(result.code, 0);
   assert.equal(JSON.parse(result.stdout).capabilities.length, 6);
+});
+
+
+test('CLI saves a private PNG alongside unchanged JSON and refuses to overwrite it', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'yuanzi-image-test-'));
+  try {
+    const filename = join(directory, 'chart.png');
+    const input = JSON.stringify(basicInput);
+    const plain = await runCli(['chart', '--stdin'], input);
+    const result = await runCli(['chart', '--stdin', '--image', filename], input);
+    assert.equal(result.code, 0);
+    assert.equal(result.stdout, plain.stdout);
+    assert.match(result.stderr, /Image saved:/);
+    const png = await readFile(filename);
+    assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    if (process.platform !== 'win32') assert.equal((await stat(filename)).mode & 0o777, 0o600);
+    const duplicate = await runCli(['chart', '--stdin', '--image', filename], input);
+    assert.equal(duplicate.code, 1);
+    assert.equal(duplicate.stdout, '');
+    assert.match(JSON.parse(duplicate.stderr).error.message, /new PNG path/);
+    assert.deepEqual(await readFile(filename), png);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });

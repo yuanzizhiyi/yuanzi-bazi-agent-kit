@@ -4,7 +4,7 @@ description: Calculate a deterministic, privacy-minimized basic Four Pillars (Ba
 license: MIT
 metadata:
   author: Yuanzi Zhiyi
-  version: 0.1.0
+  version: 0.2.0
 ---
 
 # Yuanzi Basic Bazi
@@ -29,10 +29,12 @@ Do not ask for or pass a person's name, gender, account ID, email, notes, or que
 Prefer the installed command:
 
 ```bash
-yuanzi-bazi chart --stdin --format json
+yuanzi-bazi chart --stdin --format json --image <new-output-directory>/chart.png
 ```
 
-If this repository was installed as the Skill instead of the npm command, run `node <skill-directory>/dist/cli.js chart --stdin --format json`.
+If this repository was installed as the Skill instead of the npm command, run `node <skill-directory>/dist/cli.js chart --stdin --format json --image <new-output-directory>/chart.png`.
+
+Create a fresh local output directory for each request, with no birth data or identity in its name. Use the client’s artifact directory when available. Pass `--locale zh-CN|zh-Hant|en` to match the user. The PNG is generated locally using a bundled font; existing files are never overwritten.
 
 Pass exactly one JSON object on standard input. Read [references/input-output.md](references/input-output.md) when constructing input or interpreting fields.
 
@@ -44,6 +46,8 @@ Defaults, when the user has not specified otherwise:
 State those conventions in the answer. If comparing conventions, run the calculator once per convention and label each result.
 
 ## Present the result
+
+Return both the structured chart facts and the generated PNG. Display the image using the client’s supported local image/artifact mechanism; if inline rendering is unavailable, provide a downloadable file link and say so. Do not claim an image was displayed unless it was returned. If using MCP instead, `calculate_basic_bazi_chart` returns the PNG as an MCP image content block alongside JSON.
 
 Treat these as calculated facts: converted calendar date, adjusted time, four pillars, day master, ten gods, hidden stems, and unweighted element counts.
 

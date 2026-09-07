@@ -17,7 +17,7 @@ const withClient = async (run: (client: Client, stderr: () => string) => Promise
     stderr: 'pipe',
   });
   let stderr = '';
-  transport.stderr?.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
+  transport.stderr?.on('data', (chunk: Buffer | string) => { stderr += chunk.toString(); });
   const client = new Client(
     { name: 'yuanzi-bazi-agent-kit-test', version: '0.1.0' },
     { versionNegotiation: { mode: 'auto' } },
@@ -75,7 +75,11 @@ test('stdio MCP returns only structured basic chart output until a hosted featur
     assert.equal(structured.chart.schemaVersion, 'yuanzi-basic-bazi/v1');
     assert.equal(structured.chart.pillars.day.name, '丙申');
     assert.deepEqual(Object.keys(structured), ['chart']);
-    assert.match(String(result.content[0] && 'text' in result.content[0] ? result.content[0].text : ''), /四柱/);
+    const image = result.content.find(item => item.type === 'image');
+    assert.ok(image && image.type === 'image');
+    assert.equal(image.mimeType, 'image/png');
+    assert.equal(Buffer.from(image.data, 'base64').subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+    assert.match(String(result.content[1] && 'text' in result.content[1] ? result.content[1].text : ''), /四柱/);
     assert.equal(stderr(), '');
   });
 });

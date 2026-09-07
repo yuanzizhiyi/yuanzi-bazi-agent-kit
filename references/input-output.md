@@ -52,3 +52,7 @@ It does not append a promotional URL to a calculation. Only call `get_yuanzi_baz
 Expected error codes include `input_invalid`, `calendar_invalid`, `date_invalid`, `time_invalid`, `timezone_invalid`, `dst_gap`, `dst_overlap`, `longitude_invalid`, and `longitude_required`.
 
 Daylight-saving gaps and overlaps fail closed. Ask the user to supply a different unambiguous local time; do not silently select an offset.
+
+## Images
+
+The stdio MCP calculation returns JSON in `structuredContent.chart` and a JSON text block, readable facts, and a base64 `image/png` content block. Client image support determines inline display. CLI `--image PATH.png` saves a PNG without changing JSON stdout; it requires a new file path and writes a save notice to stderr. The Node-only `yuanzi-bazi-agent-kit/image` export provides `renderBasicBaziPng(chart, locale, { redactBirthDetails: true })` for public examples. Redaction removes the birth date, recorded and adjusted clock, and time zone from image content; chart facts remain visible. PNG rendering uses no site API or AI generation.

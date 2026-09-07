@@ -1,6 +1,6 @@
 {
   "name": "yuanzi-bazi-agent-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local-first deterministic Bazi chart core, CLI, MCP server, and Agent Skill by Yuanzi Zhiyi.",
   "type": "module",
   "license": "MIT",
@@ -35,6 +35,10 @@
     "./mcp": {
       "types": "./dist/mcp.d.ts",
       "import": "./dist/mcp.js"
+    },
+    "./image": {
+      "types": "./dist/image.d.ts",
+      "import": "./dist/image.js"
     }
   },
   "bin": {
@@ -51,7 +55,8 @@
     "CHANGELOG.md",
     "THIRD_PARTY_NOTICES.md",
     "README.md",
-    "README.zh-CN.md"
+    "README.zh-CN.md",
+    "assets/"
   ],
   "sideEffects": false,
   "scripts": {
@@ -59,10 +64,12 @@
     "test": "tsx --test tests/*.test.ts",
     "test:coverage": "c8 --check-coverage --lines 80 --functions 80 --branches 80 --statements 80 tsx --test tests/*.test.ts",
     "pack:check": "npm run build && npm pack --dry-run",
-    "prepublishOnly": "npm run test:coverage && npm run build"
+    "prepublishOnly": "npm run test:coverage && npm run build",
+    "render:examples": "tsx scripts/render-examples.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
+    "@resvg/resvg-js": "2.6.2",
     "tyme4ts": "1.5.2",
     "zod": "4.5.4"
   },

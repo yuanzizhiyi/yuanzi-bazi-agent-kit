@@ -1,8 +1,19 @@
+![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](docs/images/readme-cover.png)
+
 # 元梓基础八字 Agent Kit
+
+[元梓知易主站](https://yuanzizhiyi.com) · [English](README.md)
+
 
 由元梓知易提供的本地优先、确定性基础八字内核，同时包含 CLI、stdio MCP Server 和 Agent Skill。
 
 公开范围刻意保持精简：历法转换、时区与真太阳时、明确的换日口径、四柱、日主、十神、藏干和未加权五行计数。稳定结果协议为 `yuanzi-basic-bazi/v1`。
+
+## 命盘案例
+
+演示命盘，出生日期、时刻与地点已隐藏；不对应任何客户资料。
+
+<img src="docs/images/chart-example-zh-CN.png" alt="命盘案例" width="560" />
 
 ## 为什么做这个工具
 
@@ -26,13 +37,21 @@
 需要 Node.js 22.19 或更高版本。
 
 ```bash
+git clone https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit.git
+cd yuanzi-bazi-agent-kit
 npm ci
 npm run build
 npm test
 npm link
 ```
 
-源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。项目元数据中已预留 npm 包名 `yuanzi-bazi-agent-kit`，但本次 `0.1.0` 源码预览不包含 npm 发布。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。项目元数据中已预留 npm 包名 `yuanzi-bazi-agent-kit`，但本次 `0.2.0` 源码预览不包含 npm 发布。
+
+## 命盘图片
+
+MCP 的 `calculate_basic_bazi_chart` 同时返回 `structuredContent.chart`、JSON 文本、可读事实和 `image/png` 图片块。支持 MCP 图片的客户端可直接展示。Skill 默认也会生成并展示 PNG。
+
+CLI 在 `chart --stdin --format json` 后增加 `--image chart.png` 即可。JSON 仍从 stdout 输出，保存提示写入 stderr；目录需已存在，且不会覆盖已有文件。图片包含生辰与命盘，分享前请自行确认。图片沿用主站纸面与四柱视觉，只呈现公开基础计算范围；内置字体，在本地生成，不请求主站接口。
 
 ## CLI
 
@@ -50,14 +69,14 @@ Server 只提供两个工具：
 - `calculate_basic_bazi_chart`：在本地完成确定性基础排盘；
 - `get_yuanzi_bazi_capabilities`：仅在需要时返回一个与当前意图相关的主站能力链接，不接收生辰数据。
 
-将来包发布后，通用 MCP 客户端可使用：
+从源码构建后，通用 stdio MCP 客户端可使用下列配置（替换为实际安装目录）：
 
 ```json
 {
   "mcpServers": {
     "yuanzi-bazi": {
-      "command": "npx",
-      "args": ["-y", "yuanzi-bazi-agent-kit@0.1.0", "mcp"]
+      "command": "node",
+      "args": ["/absolute/path/yuanzi-bazi-agent-kit/dist/cli.js", "mcp"]
     }
   }
 }

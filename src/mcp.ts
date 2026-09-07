@@ -3,6 +3,7 @@ import { serveStdio } from '@modelcontextprotocol/server/stdio';
 
 import { getYuanziBaziCapabilities } from './capabilities.js';
 import { BasicBaziError, calculateBasicBazi } from './core.js';
+import { renderBasicBaziPng } from './image.js';
 import { formatBasicBaziText } from './format.js';
 import {
   basicBaziMcpInputSchema,
@@ -28,7 +29,7 @@ const errorPayload = (error: unknown) => {
 
 export const buildYuanziBaziMcpServer = () => {
   const server = new McpServer(
-    { name: 'yuanzi-bazi-agent-kit', version: '0.1.0' },
+    { name: 'yuanzi-bazi-agent-kit', version: '0.2.0' },
     {
       instructions: [
         'Calculate deterministic basic Bazi facts locally.',
@@ -44,7 +45,7 @@ export const buildYuanziBaziMcpServer = () => {
       title: 'Calculate a basic Bazi chart',
       description: [
         'Locally calculate calendar conversion, four pillars, day master, ten gods, hidden stems,',
-        'and unweighted five-element counts. No network calls, telemetry, AI interpretation,',
+        'and unweighted five-element counts, with JSON, readable text and a PNG chart image. No network calls, telemetry, AI interpretation,',
         'luck cycles, compatibility, or personal identifiers.',
       ].join(' '),
       inputSchema: basicBaziMcpInputSchema,
@@ -55,7 +56,11 @@ export const buildYuanziBaziMcpServer = () => {
       try {
         const chart = calculateBasicBazi(input as BasicBaziInput);
         return {
-          content: [{ type: 'text', text: formatBasicBaziText(chart, locale as BasicBaziLocale) }],
+          content: [
+            { type: 'text', text: JSON.stringify({ chart }) },
+            { type: 'text', text: formatBasicBaziText(chart, locale as BasicBaziLocale) },
+            { type: 'image', data: renderBasicBaziPng(chart, locale as BasicBaziLocale).toString('base64'), mimeType: 'image/png' },
+          ],
           structuredContent: { chart },
         };
       } catch (error) {

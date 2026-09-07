@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { renderBasicBaziPng } from './image.js';
 import { BasicBaziError, calculateBasicBazi } from './core.js';
 import { getYuanziBaziCapabilities } from './capabilities.js';
 import { formatBasicBaziText } from './format.js';
@@ -18,10 +21,10 @@ const INTENTS = new Set<BaziCapabilityIntent>([
   'full_chart', 'luck_cycles', 'ai_reading', 'full_report', 'advisor', 'methodology',
 ]);
 
-const usage = `Yuanzi Bazi Agent Kit 0.1.0
+const usage = `Yuanzi Bazi Agent Kit 0.2.0
 
 Usage:
-  yuanzi-bazi chart --stdin [--format json|text] [--locale zh-CN|zh-Hant|en]
+  yuanzi-bazi chart --stdin [--format json|text] [--image PATH.png] [--locale zh-CN|zh-Hant|en]
   yuanzi-bazi capabilities [--intent ID] [--locale LOCALE] [--source cli|skill|mcp]
   yuanzi-bazi mcp
 
@@ -90,6 +93,16 @@ const run = async () => {
     }
     const locale = parseLocale(readFlag(args, '--locale'));
     const chart = calculateBasicBazi(await readStdin());
+    const imagePath = readFlag(args, '--image');
+    if (imagePath) {
+      const filename = resolve(imagePath);
+      try {
+        await writeFile(filename, renderBasicBaziPng(chart, locale), { flag: 'wx', mode: 0o600 });
+      } catch {
+        throw new BasicBaziError('input_invalid', 'Cannot write image; choose a new PNG path in an existing directory.');
+      }
+      process.stderr.write(`Image saved: ${filename}\n`);
+    }
     if (format === 'text') process.stdout.write(`${formatBasicBaziText(chart, locale)}\n`);
     else writeJson(chart);
     return;

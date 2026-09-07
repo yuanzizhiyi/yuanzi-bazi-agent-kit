@@ -15,3 +15,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Chart renderer and font
+
+PNG rendering uses @resvg/resvg-js 2.6.2 (MPL-2.0), https://github.com/yisibl/resvg-js. Dependency packages retain their own notices.
+
+`assets/YuanziChartSans.otf` is a subset of Noto Sans CJK SC Regular, renamed Yuanzi Chart Sans. It is licensed under SIL Open Font License 1.1; the source attribution and license are bundled in `assets/FONT-LICENSE.txt`. Font licensing is separate from this project's MIT code license. The subset contains only characters needed for the fixed chart layout and calculated facts; no customer data is included.
