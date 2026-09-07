@@ -80,9 +80,9 @@ test('repository metadata is ready for public collaboration and automated verifi
     scripts?: Record<string, string>;
   };
 
-  assert.equal(packageJson.repository?.url, 'git+https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit.git');
-  assert.equal(packageJson.homepage, 'https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit#readme');
-  assert.equal(packageJson.bugs?.url, 'https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit/issues');
+  assert.equal(packageJson.repository?.url, 'git+https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit.git');
+  assert.equal(packageJson.homepage, 'https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit#readme');
+  assert.equal(packageJson.bugs?.url, 'https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit/issues');
   assert.equal(packageJson.publishConfig?.access, 'public');
   assert.match(packageJson.scripts?.prepublishOnly || '', /test:coverage/);
   assert.match(contributing, /pull request/i);

@@ -34,7 +34,7 @@ npm test
 npm link
 ```
 
-The source repository is [wanghan198710-pixel/yuanzi-bazi-agent-kit](https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit). The npm package name is reserved in the project metadata but has not been published as part of the `0.1.0` source preview.
+The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package name is reserved in the project metadata but has not been published as part of the `0.1.0` source preview.
 
 ## CLI
 

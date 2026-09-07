@@ -15,11 +15,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit.git"
+    "url": "git+https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit.git"
   },
-  "homepage": "https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit#readme",
+  "homepage": "https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit#readme",
   "bugs": {
-    "url": "https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit/issues"
+    "url": "https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit/issues"
   },
   "publishConfig": {
     "access": "public"

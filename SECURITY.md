@@ -6,7 +6,7 @@ The latest `0.1.x` release receives security fixes while this project is in publ
 
 ## Reporting a vulnerability
 
-Please use this repository's private [GitHub Security Advisories](https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit/security/advisories/new) form. Do not disclose a suspected vulnerability in a public issue, and do not attach real birth data, credentials, tokens, or account records.
+Please use this repository's private [GitHub Security Advisories](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit/security/advisories/new) form. Do not disclose a suspected vulnerability in a public issue, and do not attach real birth data, credentials, tokens, or account records.
 
 Include the affected version, a minimal synthetic reproduction, the expected impact, and any mitigation you have already tested. We will acknowledge a report when it is reviewed and coordinate disclosure after a fix is available.
 

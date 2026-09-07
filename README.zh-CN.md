@@ -32,7 +32,7 @@ npm test
 npm link
 ```
 
-源码仓库为 [wanghan198710-pixel/yuanzi-bazi-agent-kit](https://github.com/wanghan198710-pixel/yuanzi-bazi-agent-kit)。项目元数据中已预留 npm 包名 `yuanzi-bazi-agent-kit`，但本次 `0.1.0` 源码预览不包含 npm 发布。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。项目元数据中已预留 npm 包名 `yuanzi-bazi-agent-kit`，但本次 `0.1.0` 源码预览不包含 npm 发布。
 
 ## CLI
 
