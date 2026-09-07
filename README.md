@@ -41,7 +41,7 @@ Luck cycles, shensha, compatibility, AI readings, reports, and advisor services 
 Requires Node.js 22.19 or later. Start the local MCP server:
 
 ```bash
-npx -y yuanzi-bazi-agent-kit@0.2.0 mcp
+npx -y yuanzi-bazi-agent-kit@0.2.1 mcp
 ```
 
 MCP client configuration:
@@ -51,7 +51,7 @@ MCP client configuration:
   "mcpServers": {
     "yuanzi-bazi": {
       "command": "npx",
-      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.0", "mcp"]
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.1", "mcp"]
     }
   }
 }
@@ -72,7 +72,7 @@ npm test
 npm link
 ```
 
-The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, version `0.2.0`.
+The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, version `0.2.1`.
 
 ## Chart images
 

@@ -4,7 +4,7 @@ description: Calculate a deterministic, privacy-minimized basic Four Pillars (Ba
 license: MIT
 metadata:
   author: Yuanzi Zhiyi
-  version: 0.2.0
+  version: 0.2.1
 ---
 
 # Yuanzi Basic Bazi

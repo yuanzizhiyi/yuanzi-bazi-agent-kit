@@ -29,7 +29,7 @@ const errorPayload = (error: unknown) => {
 
 export const buildYuanziBaziMcpServer = () => {
   const server = new McpServer(
-    { name: 'yuanzi-bazi-agent-kit', version: '0.2.0' },
+    { name: 'yuanzi-bazi-agent-kit', version: '0.2.1' },
     {
       instructions: [
         'Calculate deterministic basic Bazi facts locally.',

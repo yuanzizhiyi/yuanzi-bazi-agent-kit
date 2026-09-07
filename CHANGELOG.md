@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-09-07
+
+- Add MCP Registry ownership metadata and a server manifest with the required `mcp` argument.
+- Preserve the 0.1.0 calculation engine and v1 JSON contract.
+
+
 ## 0.2.0 — 2026-09-07
 
 - Return a locally rendered PNG alongside MCP JSON and readable chart facts.

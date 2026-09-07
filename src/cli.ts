@@ -21,7 +21,7 @@ const INTENTS = new Set<BaziCapabilityIntent>([
   'full_chart', 'luck_cycles', 'ai_reading', 'full_report', 'advisor', 'methodology',
 ]);
 
-const usage = `Yuanzi Bazi Agent Kit 0.2.0
+const usage = `Yuanzi Bazi Agent Kit 0.2.1
 
 Usage:
   yuanzi-bazi chart --stdin [--format json|text] [--image PATH.png] [--locale zh-CN|zh-Hant|en]

@@ -39,7 +39,7 @@
 需要 Node.js 22.19 或更高版本。启动本地 MCP：
 
 ```bash
-npx -y yuanzi-bazi-agent-kit@0.2.0 mcp
+npx -y yuanzi-bazi-agent-kit@0.2.1 mcp
 ```
 
 客户端配置：
@@ -49,7 +49,7 @@ npx -y yuanzi-bazi-agent-kit@0.2.0 mcp
   "mcpServers": {
     "yuanzi-bazi": {
       "command": "npx",
-      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.0", "mcp"]
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.1", "mcp"]
     }
   }
 }
@@ -70,7 +70,7 @@ npm test
 npm link
 ```
 
-源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，当前版本 `0.2.0`。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，当前版本 `0.2.1`。
 
 ## 命盘图片
 

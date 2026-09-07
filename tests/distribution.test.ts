@@ -95,3 +95,16 @@ test('repository metadata is ready for public collaboration and automated verifi
   assert.match(workflow, /permissions:\s*\n\s*contents: read/);
   assert.match(bugTemplate, /privacy/i);
 });
+
+
+test('Registry manifest binds the npm package and invokes MCP stdio mode', async () => {
+  const pkg = JSON.parse(await read('package.json'));
+  const server = JSON.parse(await read('server.json'));
+  assert.equal(server.name, pkg.mcpName);
+  assert.equal(server.version, pkg.version);
+  assert.equal(server.packages[0].identifier, pkg.name);
+  assert.equal(server.packages[0].version, pkg.version);
+  assert.equal(server.packages[0].transport.type, 'stdio');
+  assert.deepEqual(server.packages[0].packageArguments, [{ type: 'positional', value: 'mcp' }]);
+  assert.ok(pkg.files.includes('server.json'));
+});

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.yuanzizhiyi/yuanzi-bazi-agent-kit",
+  "title": "Yuanzi Zhiyi Bazi Agent Kit",
+  "description": "Local Bazi charts, Ten Gods and true solar time, with structured facts and PNG images.",
+  "repository": {
+    "url": "https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit",
+    "source": "github"
+  },
+  "version": "0.2.1",
+  "websiteUrl": "https://yuanzizhiyi.com",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "yuanzi-bazi-agent-kit",
+      "version": "0.2.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ]
+}
