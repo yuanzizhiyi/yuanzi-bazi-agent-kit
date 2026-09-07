@@ -53,7 +53,7 @@
     }
   },
   "bin": {
-    "yuanzi-bazi": "./dist/cli.js"
+    "yuanzi-bazi": "dist/cli.js"
   },
   "files": [
     "dist/",

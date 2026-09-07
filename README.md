@@ -36,6 +36,29 @@ Calculation is local, uses zero telemetry, and makes no network requests. See [s
 
 Luck cycles, shensha, compatibility, AI readings, reports, and advisor services are not part of the public core.
 
+## Install with npm
+
+Requires Node.js 22.19 or later. Start the local MCP server:
+
+```bash
+npx -y yuanzi-bazi-agent-kit@0.2.0 mcp
+```
+
+MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "yuanzi-bazi": {
+      "command": "npx",
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.0", "mcp"]
+    }
+  }
+}
+```
+
+The first run downloads npm dependencies; chart calculation and image rendering then run locally.
+
 ## Install from this source tree
 
 Requires Node.js 22.19 or later.
@@ -49,7 +72,7 @@ npm test
 npm link
 ```
 
-The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package name is reserved in the project metadata but has not been published as part of the `0.2.0` source preview.
+The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, version `0.2.0`.
 
 ## Chart images
 

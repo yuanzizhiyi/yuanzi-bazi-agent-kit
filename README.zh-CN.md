@@ -34,6 +34,29 @@
 
 大运、流年流月、神煞、合盘、AI 解读、完整报告和专属命理师不在公开内核范围内。
 
+## 使用 npm
+
+需要 Node.js 22.19 或更高版本。启动本地 MCP：
+
+```bash
+npx -y yuanzi-bazi-agent-kit@0.2.0 mcp
+```
+
+客户端配置：
+
+```json
+{
+  "mcpServers": {
+    "yuanzi-bazi": {
+      "command": "npx",
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.0", "mcp"]
+    }
+  }
+}
+```
+
+首次运行需要下载 npm 依赖；之后排盘和图片生成在本地完成。
+
 ## 从当前源码安装
 
 需要 Node.js 22.19 或更高版本。
@@ -47,7 +70,7 @@ npm test
 npm link
 ```
 
-源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。项目元数据中已预留 npm 包名 `yuanzi-bazi-agent-kit`，但本次 `0.2.0` 源码预览不包含 npm 发布。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，当前版本 `0.2.0`。
 
 ## 命盘图片
 
