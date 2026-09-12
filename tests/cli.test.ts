@@ -80,6 +80,8 @@ test('CLI renders help and localized text output', async () => {
   ]);
 
   assert.equal(help.code, 0);
+  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(help.stdout.split('\n')[0], `Yuanzi Bazi Agent Kit ${pkg.version}`);
   assert.match(help.stdout, /Usage:/);
   assert.match(english.stdout, /Four pillars:/);
   assert.match(traditional.stdout, /排盤口徑/);

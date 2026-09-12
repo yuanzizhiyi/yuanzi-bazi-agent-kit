@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — Unreleased
+## 0.3.0 — 2026-09-12
 
 - Recreate the editorial chart layout with a highlighted day column, complete table, directed five-element diagram and ten proportional bars.
 - Bundle renamed Noto Sans CJK SC Regular and Noto Serif CJK SC SemiBold subsets; export 2160px-wide PNGs with dynamic height.

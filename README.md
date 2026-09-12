@@ -38,12 +38,12 @@ Luck cycles, interpretation of shensha, compatibility, AI readings, reports, and
 
 ## Install with npm
 
-The source tree contains the **0.3.0 preview**. The pinned 0.2.1 commands below do not include the new chart layout or structure extension; use the source installation for this update.
+Version **0.3.0** includes the new chart layout, bundled fonts, and chart structure extension.
 
 Requires Node.js 22.19 or later. Start the local MCP server:
 
 ```bash
-npx -y yuanzi-bazi-agent-kit@0.2.1 mcp
+npx -y yuanzi-bazi-agent-kit@0.3.0 mcp
 ```
 
 MCP client configuration:
@@ -53,7 +53,7 @@ MCP client configuration:
   "mcpServers": {
     "yuanzi-bazi": {
       "command": "npx",
-      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.1", "mcp"]
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.3.0", "mcp"]
     }
   }
 }
@@ -74,7 +74,7 @@ npm test
 npm link
 ```
 
-The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, source version `0.3.0` (pending publication).
+The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, version `0.3.0`.
 
 ## Chart images
 

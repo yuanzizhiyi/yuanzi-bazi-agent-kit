@@ -36,12 +36,12 @@
 
 ## 使用 npm
 
-当前源码包含 **0.3.0 预览版**。以下固定为 0.2.1 的 npm 命令尚不包含新版排版和结构扩展；体验本次更新请从当前源码构建。
+**0.3.0** 包含新版命盘排版、内置字体与图表结构扩展。
 
 需要 Node.js 22.19 或更高版本。启动本地 MCP：
 
 ```bash
-npx -y yuanzi-bazi-agent-kit@0.2.1 mcp
+npx -y yuanzi-bazi-agent-kit@0.3.0 mcp
 ```
 
 客户端配置：
@@ -51,7 +51,7 @@ npx -y yuanzi-bazi-agent-kit@0.2.1 mcp
   "mcpServers": {
     "yuanzi-bazi": {
       "command": "npx",
-      "args": ["-y", "yuanzi-bazi-agent-kit@0.2.1", "mcp"]
+      "args": ["-y", "yuanzi-bazi-agent-kit@0.3.0", "mcp"]
     }
   }
 }
@@ -72,7 +72,7 @@ npm test
 npm link
 ```
 
-源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，源码预览版本 `0.3.0`（待发布）。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，版本为 `0.3.0`。
 
 ## 命盘图片
 
