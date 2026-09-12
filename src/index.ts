@@ -13,4 +13,5 @@ export {
   BAZI_CAPABILITY_TOOL_INPUT_JSON_SCHEMA,
 } from './tool-contracts.js';
 export { getTenGod } from './metadata.js';
+export { analyzeBasicBaziStructure } from './chart-structure.js';
 export type * from './types.js';

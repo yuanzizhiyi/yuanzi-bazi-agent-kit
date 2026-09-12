@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — Unreleased
+
+- Recreate the editorial chart layout with a highlighted day column, complete table, directed five-element diagram and ten proportional bars.
+- Bundle renamed Noto Sans CJK SC Regular and Noto Serif CJK SC SemiBold subsets; export 2160px-wide PNGs with dynamic height.
+- Add the optional v1 `structure` extension: unweighted equal-occurrence shares and eight documented shensha / two co-occurrence rules with evidence.
+- Advance core metadata to 0.2.0; retain calendar, time-zone, day-boundary, old raw counts and privacy contracts.
+- Preserve redaction, unknown-time warnings and render compatibility with older v1 JSON.
+
 ## 0.2.1 — 2026-09-07
 
 - Add MCP Registry ownership metadata and a server manifest with the required `mcp` argument.

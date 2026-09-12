@@ -8,12 +8,13 @@
 - explicit 23:00 or midnight day-boundary convention;
 - year, month, day, and optional hour pillars;
 - day master, ten gods, hidden stems, and unweighted five-element counts;
-- versioned JSON and explicit warnings.
+- versioned JSON and explicit warnings;
+- unweighted stem-composition percentages, five-element relationships, and the eight named shensha rules / two co-occurrence combinations in [chart-structure.md](chart-structure.md).
 
 ## Not included
 
 - luck cycles, annual cycles, or monthly cycles;
-- shensha and derived interpretive systems;
+- shensha rules outside the documented set, strength/favorability scores, and derived interpretations;
 - compatibility or relationship analysis;
 - AI interpretation, prediction, complete reports, or advisor services;
 - account, payment, or membership functions.

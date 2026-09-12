@@ -8,6 +8,7 @@ import {
 } from 'tyme4ts';
 
 import { BRANCH_PROFILES, HIDDEN_STEMS, STEM_PROFILES, getTenGod } from './metadata.js';
+import { analyzeBasicBaziStructure } from './chart-structure.js';
 import type {
   BasicBaziCorrection,
   BasicBaziDateTime,
@@ -22,7 +23,7 @@ import type {
 } from './types.js';
 
 export const BASIC_BAZI_SCHEMA_VERSION = 'yuanzi-basic-bazi/v1' as const;
-export const BASIC_BAZI_CORE_VERSION = '0.1.0' as const;
+export const BASIC_BAZI_CORE_VERSION = '0.2.0' as const;
 export const BASIC_BAZI_ENGINE_NAME = 'tyme4ts' as const;
 export const BASIC_BAZI_ENGINE_VERSION = '1.5.2' as const;
 
@@ -479,6 +480,10 @@ export const calculateBasicBazi = (input: BasicBaziInput): BasicBaziResult => {
         method: 'unweighted-visible-and-hidden-counts',
         ...elementCounts,
       },
+      structure: analyzeBasicBaziStructure({
+        pillars: { year: yearPillar, month: monthPillar, day: dayPillar, hour: hourPillar },
+        dayMaster: { value: dayStem, ...dayMasterProfile },
+      }),
       warnings: buildWarnings(hourKnown, minuteKnown, normalized.timeCorrection, boundaryChanged),
       attribution: {
         brand: 'Yuanzi Zhiyi',

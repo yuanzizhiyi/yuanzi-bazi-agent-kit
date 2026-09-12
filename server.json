@@ -7,13 +7,13 @@
     "url": "https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit",
     "source": "github"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "websiteUrl": "https://yuanzizhiyi.com",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "yuanzi-bazi-agent-kit",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

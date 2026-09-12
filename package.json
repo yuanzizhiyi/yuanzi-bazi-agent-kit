@@ -1,6 +1,6 @@
 {
   "name": "yuanzi-bazi-agent-kit",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "元梓知易基础八字排盘工具集 · Local Bazi charts for AI agents: MCP, Agent Skill, JSON + PNG. No API key.",
   "type": "module",
   "license": "MIT",

@@ -7,7 +7,7 @@
 
 由元梓知易提供的本地优先、确定性基础八字内核，同时包含 CLI、stdio MCP Server 和 Agent Skill。
 
-公开范围刻意保持精简：历法转换、时区与真太阳时、明确的换日口径、四柱、日主、十神、藏干和未加权五行计数。稳定结果协议为 `yuanzi-basic-bazi/v1`。
+计算范围包括：历法转换、时区与真太阳时、明确的换日口径、四柱、日主、十神、藏干、未加权五行计数、构成占比，以及明确规则集内的八项神煞和两项共现组合。稳定结果协议为 `yuanzi-basic-bazi/v1`。
 
 **主题 / Topics：** 八字排盘 · Bazi / Four Pillars · 真太阳时 / True Solar Time · 历法转换 / Calendar Conversion · MCP · Agent Skill · 本地命盘图片 / Local Chart Images
 
@@ -32,9 +32,11 @@
 | stdio MCP | 两个 schema-first、只读工具 |
 | `SKILL.md` | Agent 操作流程与安全边界 |
 
-大运、流年流月、神煞、合盘、AI 解读、完整报告和专属命理师不在公开内核范围内。
+大运、流年流月、神煞吉凶解读、合盘、AI 解读、完整报告和专属命理师不在公开内核范围内。
 
 ## 使用 npm
+
+当前源码包含 **0.3.0 预览版**。以下固定为 0.2.1 的 npm 命令尚不包含新版排版和结构扩展；体验本次更新请从当前源码构建。
 
 需要 Node.js 22.19 或更高版本。启动本地 MCP：
 
@@ -70,13 +72,13 @@ npm test
 npm link
 ```
 
-源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，当前版本 `0.2.1`。
+源码仓库为 [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit)。npm 包名为 `yuanzi-bazi-agent-kit`，源码预览版本 `0.3.0`（待发布）。
 
 ## 命盘图片
 
 MCP 的 `calculate_basic_bazi_chart` 同时返回 `structuredContent.chart`、JSON 文本、可读事实和 `image/png` 图片块。支持 MCP 图片的客户端可直接展示。Skill 默认也会生成并展示 PNG。
 
-CLI 在 `chart --stdin --format json` 后增加 `--image chart.png` 即可。JSON 仍从 stdout 输出，保存提示写入 stderr；目录需已存在，且不会覆盖已有文件。图片包含生辰与命盘，分享前请自行确认。图片沿用主站纸面与四柱视觉，只呈现公开基础计算范围；内置字体，在本地生成，不请求主站接口。
+CLI 在 `chart --stdin --format json` 后增加 `--image chart.png` 即可。JSON 仍从 stdout 输出，保存提示写入 stderr；目录需已存在，且不会覆盖已有文件。图片包含生辰与命盘，分享前请自行确认。图片沿用主站纸面与四柱视觉，只呈现公开基础计算范围；内置宋体和无衬线字体，在本地生成，不请求主站接口。图片宽度 2160px，高度随内容调整；完整展示四柱明细、日柱底色、神煞与组合、五行生克关系和十神占比。具体口径见[图表结构与规则](references/chart-structure.md)。
 
 ## CLI
 

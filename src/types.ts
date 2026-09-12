@@ -120,6 +120,30 @@ export type BasicBaziCorrection = {
 
 export type BasicBaziElementCounts = Record<FiveElement, number>;
 
+export type BaziPillarKey = 'year' | 'month' | 'day' | 'hour';
+export type BaziShenshaId = 'tai_ji' | 'hua_gai' | 'tian_de_he' | 'kong_wang'
+  | 'wen_chang' | 'tian_yi' | 'wang_shen' | 'hong_luan';
+export type BaziShenshaMatch = {
+  id: BaziShenshaId;
+  name: string;
+  basis: Array<{ pillar: BaziPillarKey; part: 'stem' | 'branch' | 'pillar'; value: string }>;
+};
+export type BaziShenshaColumn = {
+  status: 'calculated' | 'hour_unknown';
+  matches: BaziShenshaMatch[];
+  combinations: Array<{ id: string; name: string; requires: BaziShenshaId[] }>;
+};
+export type BasicBaziStructure = {
+  method: 'equal-stem-occurrence/v1';
+  total: number;
+  elements: Array<{ element: FiveElement; count: number; percent: number; tenGods: TenGod[] }>;
+  tenGods: Array<{ name: TenGod; element: FiveElement; count: number; percent: number }>;
+  shensha: {
+    ruleSet: 'yuanzi-shensha/v1';
+    pillars: Record<BaziPillarKey, BaziShenshaColumn>;
+  };
+};
+
 export type BasicBaziResult = {
   schemaVersion: 'yuanzi-basic-bazi/v1';
   coreVersion: string;
@@ -166,6 +190,8 @@ export type BasicBaziResult = {
     visible: BasicBaziElementCounts;
     hiddenStems: BasicBaziElementCounts;
   };
+  /** Additive v1 extension. Older saved charts may omit it. Counts are not strength. */
+  structure?: BasicBaziStructure;
   warnings: BasicBaziWarning[];
   attribution: {
     brand: 'Yuanzi Zhiyi';

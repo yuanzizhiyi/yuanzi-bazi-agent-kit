@@ -1,326 +1,253 @@
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
-import type {
-  BasicBaziLocale,
-  BasicBaziResult,
-  BasicBaziWarningCode,
-  FiveElement,
-} from './types.js';
+import { analyzeBasicBaziStructure, CONTROLLING_EDGES, ELEMENT_ORDER, GENERATING_EDGES, PILLAR_KEYS } from './chart-structure.js';
+import { COPY, ELEMENT_LABELS, localizeTerm, PILLAR_LABELS, ROW_LABELS, WARNINGS } from './image-copy.js';
+import type { BasicBaziLocale, BasicBaziResult, FiveElement } from './types.js';
 
-const COLORS: Record<FiveElement, string> = {
-  wood: '#34745c',
-  fire: '#a52d37',
-  earth: '#967141',
-  metal: '#926e26',
-  water: '#356582',
+type Face = 'sans' | 'serif';
+const METRICS = JSON.parse(readFileSync(new URL('../assets/chart-font-metrics.json', import.meta.url), 'utf8')) as Record<Face, Record<string, number>>;
+const FONTS = ['YuanziChartSans.otf', 'YuanziChartSerif.otf'].map(name => fileURLToPath(new URL(`../assets/${name}`, import.meta.url)));
+const BRAND_MARK = `data:image/png;base64,${readFileSync(new URL('../assets/yuanzi-logo-mark.png', import.meta.url)).toString('base64')}`;
+const FAMILY: Record<Face, string> = { sans: 'Yuanzi Chart Sans', serif: 'Yuanzi Chart Serif' };
+const COLORS: Record<FiveElement, string> = { wood: '#34745c', fire: '#8f271f', earth: '#967141', metal: '#806b48', water: '#356582' };
+const PAPER = '#fbf7f0', INK = '#171713', MUTED = '#655a50', BORDER = '#d8cabc', GOLD = '#a17843', ACCENT = '#8f271f';
+const escape = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]!);
+const number = (n: number) => String(Math.round(n * 100) / 100);
+const width = (s: string, size: number, face: Face = 'sans') => Array.from(s).reduce((n, c) => n + (METRICS[face][c] ?? 1) * size, 0);
+const wrap = (s: string, max: number, size: number, face: Face = 'sans'): string[] => {
+  const lines: string[] = [];
+  let line = '';
+  for (const token of s.match(/[^\s\u2e80-\u9fff]+|\s+|[\u2e80-\u9fff]/gu) ?? []) {
+    if (width(line + token, size, face) <= max) { line += token; continue; }
+    if (line.trim()) lines.push(line.trim());
+    line = '';
+    if (width(token, size, face) <= max) { line = token.trimStart(); continue; }
+    for (const c of token) {
+      if (width(line + c, size, face) > max && line) { lines.push(line); line = ''; }
+      line += c;
+    }
+  }
+  if (line.trim()) lines.push(line.trim());
+  return lines.length ? lines : [''];
 };
-const escape = (value: string) =>
-  value.replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&apos;',
-      })[c]!,
-  );
-const FONT = fileURLToPath(
-  new URL('../assets/YuanziChartSans.otf', import.meta.url),
-);
-const LABELS = {
-  'zh-CN': {
-    title: '基础八字命盘',
-    subtitle: '确定性排盘 · 本地生成',
-    pillars: ['年柱', '月柱', '日柱', '时柱'],
-    unknown: '未知',
-    master: '日主',
-    hidden: '藏干 · 十神',
-    elements: '五行分布 · 未加权计数',
-    visible: '天干地支',
-    hiddenCount: '藏干',
-    elementNames: ['木', '火', '土', '金', '水'],
-    time: '排盘时间',
-    civil: '当地民用时间',
-    solar: '真太阳时',
-    boundary: '换日',
-    notice: '文化探索与参考，不代表强弱、喜忌或命运预测。',
-    warnings: '计算提示',
-  },
-  'zh-Hant': {
-    title: '基礎八字命盤',
-    subtitle: '確定性排盤 · 本地生成',
-    pillars: ['年柱', '月柱', '日柱', '時柱'],
-    unknown: '未知',
-    master: '日主',
-    hidden: '藏干 · 十神',
-    elements: '五行分布 · 未加權計數',
-    visible: '天干地支',
-    hiddenCount: '藏干',
-    elementNames: ['木', '火', '土', '金', '水'],
-    time: '排盤時間',
-    civil: '當地民用時間',
-    solar: '真太陽時',
-    boundary: '換日',
-    notice: '文化探索與參考，不代表強弱、喜忌或命運預測。',
-    warnings: '計算提示',
-  },
-  en: {
-    title: 'Your basic Bazi chart',
-    subtitle: 'Deterministic facts. Rendered locally.',
-    pillars: ['Year', 'Month', 'Day', 'Hour'],
-    unknown: 'Unknown',
-    master: 'Day master',
-    hidden: 'Hidden stems / Ten Gods',
-    elements: 'Five elements / unweighted counts',
-    visible: 'Visible',
-    hiddenCount: 'Hidden',
-    elementNames: ['Wood', 'Fire', 'Earth', 'Metal', 'Water'],
-    time: 'Chart time',
-    civil: 'Civil time',
-    solar: 'True solar time',
-    boundary: 'Day boundary',
-    notice:
-      'For cultural exploration. Counts do not indicate strength or predict outcomes.',
-    warnings: 'Calculation notes',
-  },
+
+type Chip = { x: number; y: number; w: number; h: number; lines: string[] };
+const chips = (labels: string[], max: number, size: number) => {
+  const result: Chip[] = [];
+  let x = 0, y = 0, rowHeight = 0;
+  for (const label of labels) {
+    const lines = wrap(label, max - 20, size);
+    const w = Math.min(max, Math.max(...lines.map(s => width(s, size))) + 20);
+    const h = lines.length * (size + 5) + 10;
+    if (x && x + w > max) { x = 0; y += rowHeight + 7; rowHeight = 0; }
+    result.push({ x, y, w, h, lines });
+    x += w + 7;
+    rowHeight = Math.max(rowHeight, h);
+  }
+  return { items: result, height: y + rowHeight };
 };
-const GODS: Record<string, string> = {
-  比肩: 'Peer',
-  劫财: 'Rob wealth',
-  食神: 'Eating god',
-  伤官: 'Hurting officer',
-  偏财: 'Indirect wealth',
-  正财: 'Direct wealth',
-  七杀: 'Seven killings',
-  正官: 'Direct officer',
-  偏印: 'Indirect resource',
-  正印: 'Direct resource',
-  dayMaster: 'Day master',
-};
-const WARNINGS: Record<
-  BasicBaziLocale,
-  Record<BasicBaziWarningCode, string>
-> = {
-  'zh-CN': {
-    hour_unknown: '时辰未知，时柱留空。',
-    late_zi_day_uncertain: '出生时刻未知，子初换日附近的日柱有待核对。',
-    solar_term_time_uncertain: '出生时刻未知，交节附近的年柱与月柱有待核对。',
-    minute_unknown_assumed_zero: '分钟未知，暂按 00 分计算，并非确切出生分钟。',
-    boundary_proximity_uncertain: '分钟未知，临近换日、换时辰或交节时需复核。',
-    true_solar_skipped_hour_unknown: '时辰未知，未进行真太阳时校正。',
-    true_solar_boundary_changed: '真太阳时校正跨越了时辰或日期边界。',
-  },
-  'zh-Hant': {
-    hour_unknown: '時辰未知，時柱留空。',
-    late_zi_day_uncertain: '出生時刻未知，子初換日附近的日柱有待核對。',
-    solar_term_time_uncertain: '出生時刻未知，交節附近的年柱與月柱有待核對。',
-    minute_unknown_assumed_zero: '分鐘未知，暫按 00 分計算，並非確切出生分鐘。',
-    boundary_proximity_uncertain: '分鐘未知，臨近換日、換時辰或交節時需複核。',
-    true_solar_skipped_hour_unknown: '時辰未知，未進行真太陽時校正。',
-    true_solar_boundary_changed: '真太陽時校正跨越了時辰或日期邊界。',
-  },
-  en: {
-    hour_unknown: 'Birth hour unknown; the hour pillar is omitted.',
-    late_zi_day_uncertain:
-      'Unknown time: verify the day pillar near the Zi-hour boundary.',
-    solar_term_time_uncertain:
-      'Unknown time: verify year/month pillars near solar-term boundaries.',
-    minute_unknown_assumed_zero:
-      'Minute unknown; calculation assumes 00, not a confirmed birth minute.',
-    boundary_proximity_uncertain:
-      'Unknown minute: verify results near hour/day or solar-term boundaries.',
-    true_solar_skipped_hour_unknown:
-      'True solar correction skipped because the birth hour is unknown.',
-    true_solar_boundary_changed:
-      'True solar correction crossed an hour or date boundary.',
-  },
-};
-const traditional = (s: string) =>
-  s.replace(/财/g, '財').replace(/伤/g, '傷').replace(/杀/g, '殺');
 
 export interface BasicBaziImageOptions {
-  /** Hide date, birth clock, adjusted clock and timezone for public examples. */
+  /** Hide all birth dates, clocks and timezone for public examples. */
   redactBirthDetails?: boolean;
 }
 
-/** A fixed layout from calculated facts; no external assets, URLs or arbitrary SVG input. */
-export const renderBasicBaziSvg = (
-  chart: BasicBaziResult,
-  locale: BasicBaziLocale = 'zh-CN',
-  options: BasicBaziImageOptions = {},
-) => {
-  const l = LABELS[locale];
-  const height = 1160 + chart.warnings.length * 30;
-  const chunks: string[] = [];
-  const text = (
-    value: string,
-    x: number,
-    y: number,
-    size = 22,
-    color = '#24251f',
-    anchor = 'start',
-  ) =>
-    chunks.push(
-      `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}">${escape(value)}</text>`,
-    );
-  const rect = (
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    fill: string,
-    stroke = 'none',
-  ) =>
-    chunks.push(
-      `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${fill}" stroke="${stroke}"/>`,
-    );
-  const god = (s: string) =>
-    locale === 'en'
-      ? (GODS[s] ?? s)
-      : s === 'dayMaster'
-        ? l.master
-        : locale === 'zh-Hant'
-          ? traditional(s)
-          : s;
-  chunks.push(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="${height}" viewBox="0 0 1080 ${height}"><g font-family="Yuanzi Chart Sans">`,
-  );
-  rect(0, 0, 1080, height, '#fbf9f4');
-  rect(30, 30, 1020, height - 60, '#fffaf2', '#d8c8b1');
-  text(locale === 'en' ? 'Yuanzi Zhiyi' : '元梓知易', 64, 90, 30, '#9e0027');
-  text('YUANZI ZHIYI', 1016, 88, 17, '#967141', 'end');
-  chunks.push('<path d="M64 116H1016" stroke="#d8c8b1"/>');
-  text(l.title, 64, 186, 44);
-  text(l.subtitle, 64, 227, 20, '#75675b');
-  if (options.redactBirthDetails) {
-    const label =
-      locale === 'en'
-        ? 'Illustrative chart / birth details hidden'
-        : locale === 'zh-Hant'
-          ? '範例命盤 · 生辰資訊已隱藏'
-          : '示例命盘 · 生辰信息已隐藏';
-    text(label, 64, 270, 21, '#75675b');
-    text('****-**-**  **:**', 64, 307, 20, '#75675b');
-  } else {
-    // Do not display an assumed noon or an assumed minute as a known birth time.
-    const date = chart.calendar.solar.text.split(' ')[0];
-    const recorded = chart.time.recorded;
-    const clock = recorded.hourKnown
-      ? `${String(recorded.hour).padStart(2, '0')}:${recorded.minuteKnown ? String(recorded.minute).padStart(2, '0') : '??'}`
-      : l.unknown;
-    text(
-      `${date}  ${clock}  /  ${chart.time.timezone}`,
-      64,
-      270,
-      21,
-      '#75675b',
-    );
-    const corrected = recorded.hourKnown
-      ? chart.time.adjusted.text
-      : `${date} / ${l.unknown}`;
-    text(
-      `${l.time}${recorded.hourKnown && !recorded.minuteKnown ? ' *' : ''}: ${corrected}`,
-      64,
-      307,
-      20,
-      '#75675b',
-    );
-  }
-  const pillars = Object.values(chart.pillars);
+/** Fixed local vector layout. Fonts, text, arrows and proportions are deterministic. */
+export const renderBasicBaziSvg = (chart: BasicBaziResult, locale: BasicBaziLocale = 'zh-CN', options: BasicBaziImageOptions = {}) => {
+  const l = COPY[locale], english = locale === 'en';
+  const structure = chart.structure ?? analyzeBasicBaziStructure(chart);
+  const pillars = PILLAR_KEYS.map(key => chart.pillars[key]);
+  const margin = 52, right = 1028, contentWidth = right - margin, labelWidth = 148, colWidth = (contentWidth - labelWidth) / 4;
+  const colX = (i: number) => margin + labelWidth + i * colWidth;
+  const colCenter = (i: number) => colX(i) + colWidth / 2;
+  const term = (s: string) => localizeTerm(s, locale);
+  const recorded = chart.time.recorded;
+  const date = chart.calendar.solar.text.split(' ')[0];
+  const clock = recorded.hourKnown ? `${String(recorded.hour).padStart(2, '0')}:${recorded.minuteKnown ? String(recorded.minute).padStart(2, '0') : '??'}` : l.unknown;
+  const adjusted = !recorded.hourKnown ? l.unknown : recorded.minuteKnown ? chart.time.adjusted.text : `${chart.time.adjusted.text.slice(0, 13)}:??`;
+  const metadata = options.redactBirthDetails
+    ? [l.hidden]
+    : [
+      `${l.recorded}  ${date} ${clock}  /  ${chart.time.timezone}`,
+      `${l.adjusted}  ${adjusted}`,
+      ...(english ? [] : [`${l.calendar}  ${term(chart.calendar.lunar.text)}`]),
+    ];
+  const metadataLines = metadata.flatMap(s => wrap(s, contentWidth, 16));
+  const tableTitleY = 250 + metadataLines.length * 25 + 45;
+  const tableY = tableTitleY + 29;
+  const chipFont = english ? 13 : 16;
+  const shensha = PILLAR_KEYS.map(key => structure.shensha.pillars[key]);
+  const starChips = shensha.map(p => chips(p.matches.map(m => term(m.name)), colWidth - 30, chipFont));
+  const comboChips = shensha.map(p => chips(p.combinations.map(m => term(m.name)), colWidth - 30, chipFont));
+  const heights = [62, 80, 51, 80, 54, english ? 77 : 54, Math.max(86, ...starChips.map(c => c.height + 30)), Math.max(82, ...comboChips.map(c => c.height + 30))];
+  const rowY = heights.map((_, i) => tableY + heights.slice(0, i).reduce((a, b) => a + b, 0));
+  const tableHeight = heights.reduce((a, b) => a + b, 0);
+  const tableBottom = tableY + tableHeight;
+  const analysisY = tableBottom + 86;
+  const notesY = analysisY + 558;
+  const statsLines = wrap(l.statsDetail, contentWidth, 15);
+  const warningLines = chart.warnings.map(w => ({ code: w.code, lines: wrap(WARNINGS[locale][w.code], contentWidth - 28, 16) }));
+  const warningsHeight = warningLines.length ? 34 + warningLines.reduce((n, w) => n + w.lines.length * 24 + 10, 0) : 0;
+  const notesHeight = 38 + statsLines.length * 24;
+  const height = notesY + notesHeight + warningsHeight + 120;
+  const out: string[] = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="${number(height * 2)}" viewBox="0 0 1080 ${number(height)}" role="img" aria-label="${escape(l.title)}">`,
+    `<title>${escape(l.title)}</title>`,
+    '<defs><marker id="generate-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#a17843"/></marker><marker id="control-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#737e82"/></marker></defs>',
+    `<rect width="1080" height="${number(height)}" fill="${PAPER}"/>`,
+  ];
+  const text = (value: string, x: number, y: number, size = 18, color = INK, anchor = 'start', face: Face = 'sans') => out.push(`<text x="${number(x)}" y="${number(y)}" font-family="${FAMILY[face]}" font-size="${size}" fill="${color}" text-anchor="${anchor}">${escape(value)}</text>`);
+  const rect = (x: number, y: number, w: number, h: number, fill: string, stroke = 'none', radius = 0, extra = '') => out.push(`<rect ${extra} x="${number(x)}" y="${number(y)}" width="${number(w)}" height="${number(h)}" rx="${radius}" fill="${fill}" stroke="${stroke}"/>`);
+  const line = (x1: number, y1: number, x2: number, y2: number, color = BORDER) => out.push(`<path d="M${number(x1)} ${number(y1)}L${number(x2)} ${number(y2)}" fill="none" stroke="${color}"/>`);
+  const linesAt = (lines: string[], x: number, y: number, size: number, color = INK, anchor = 'start', leading = size + 7) => lines.forEach((s, i) => text(s, x, y + i * leading, size, color, anchor));
+  const cell = (value: string, i: number, row: number, size = 18, color = INK, face: Face = 'sans') => {
+    const lines = wrap(value, colWidth - 26, size, face);
+    const start = rowY[row] + heights[row] / 2 - ((lines.length - 1) * (size + 5)) / 2 + size * 0.36;
+    lines.forEach((s, n) => text(s, colCenter(i), start + n * (size + 5), size, color, 'middle', face));
+  };
+  const section = (num: string, title: string, x: number, y: number, end: number) => {
+    text(num + ' /', x, y, 37, GOLD, 'start', 'serif');
+    text(title, x + 81, y, english ? 28 : 30, INK, 'start', 'serif');
+    const start = x + 81 + width(title, english ? 28 : 30, 'serif') + 20;
+    if (start < end - 10) line(start, y - 10, end, y - 10, GOLD);
+  };
+
+  // Keep the site's complete mark + wordmark lockup, using the original local PNG.
+  out.push(`<image data-role="brand-mark" x="52" y="23" width="62" height="62" href="${BRAND_MARK}"/>`);
+  text(l.brand, margin + 78, 58, english ? 27 : 29, INK, 'start', 'serif');
+  out.push(`<text x="130" y="81" font-family="${FAMILY.sans}" font-size="10" letter-spacing="4.2" fill="${GOLD}">YUANZI ZHIYI</text>`);
+  text(l.title, margin - 3, 173, english ? 72 : 77, INK, 'start', 'serif');
+  text(pillars.map(p => p?.name ?? l.unknown).join(' · '), margin, 222, english ? 30 : 32, INK, 'start', 'serif');
+  const masterGlyph = chart.dayMaster.value + ELEMENT_LABELS['zh-CN'][ELEMENT_ORDER.indexOf(chart.dayMaster.element)];
+  text(masterGlyph, right - 6, 171, 72, ACCENT, 'end', 'serif');
+  text(english ? `${l.dayMaster} / ${ELEMENT_LABELS.en[ELEMENT_ORDER.indexOf(chart.dayMaster.element)]}` : l.dayMaster, right - 8, 206, 17, ACCENT, 'end');
+  line(margin, 242, right, 242, GOLD);
+  linesAt(metadataLines, margin, 270, 16, MUTED, 'start', 25);
+  if (options.redactBirthDetails) text('****-**-**  **:**', right, 270, 14, MUTED, 'end');
+  section('01', l.table, margin, tableTitleY, right);
+
+  rect(margin, tableY, contentWidth, tableHeight, 'none', BORDER, 5);
+  rect(colX(2), tableY, colWidth, tableHeight, '#f7e8e3', 'none', 0, 'data-role="day-column"');
+  rect(colX(1), tableY, colWidth, heights[0], '#f3ebdf');
+  line(colX(1), tableY, colX(2), tableY, GOLD);
+  line(colX(2), tableY, colX(3), tableY, ACCENT);
+  for (let i = 0; i < 4; i++) line(colX(i), tableY, colX(i), tableBottom);
+  rowY.slice(1).forEach(y => line(margin, y, right, y));
+  ROW_LABELS[locale].forEach((label, i) => {
+    const size = english ? 15 : 20, labels = wrap(label, labelWidth - 32, size);
+    linesAt(labels, margin + 18, rowY[i + 1] + heights[i + 1] / 2 - (labels.length - 1) * (size + 7) / 2 + size * 0.36, size, MUTED);
+  });
   pillars.forEach((p, i) => {
-    const x = 64 + i * 244;
-    rect(x, 347, 220, 388, i === 2 ? '#f5ede0' : '#fbf7ef', '#d8c8b1');
-    text(l.pillars[i], x + 110, 390, 22, '#75675b', 'middle');
-    text(
-      p ? god(p.stem.tenGod) : l.unknown,
-      x + 110,
-      431,
-      locale === 'en' ? 17 : 22,
-      '#75675b',
-      'middle',
-    );
-    text(
-      p?.stem.value ?? '—',
-      x + 110,
-      509,
-      64,
-      p ? COLORS[p.stem.element] : '#75675b',
-      'middle',
-    );
-    text(
-      p?.branch.value ?? '—',
-      x + 110,
-      586,
-      64,
-      p ? COLORS[p.branch.element] : '#75675b',
-      'middle',
-    );
-    chunks.push(`<path d="M${x + 20} 610H${x + 200}" stroke="#d8c8b1"/>`);
-    p?.branch.hiddenStems.forEach((h, j) =>
-      text(
-        `${h.value}  ${god(h.tenGod)}`,
-        x + 110,
-        642 + j * 30,
-        locale === 'en' ? 15 : 20,
-        COLORS[h.element],
-        'middle',
-      ),
-    );
+    text(PILLAR_LABELS[locale][i], colCenter(i), tableY + (i === 1 || i === 2 ? 27 : 39), 23, INK, 'middle', 'serif');
+    if (i === 1 || i === 2) text(i === 1 ? `${l.month}${english ? '' : ' · ' + chart.pillars.month.branch.value}` : l.dayMaster, colCenter(i), tableY + 49, 12, i === 2 ? ACCENT : GOLD, 'middle');
+    cell(p?.stem.value ?? '—', i, 1, 57, p ? COLORS[p.stem.element] : MUTED, 'serif');
+    cell(p ? term(p.stem.tenGod) : l.unknown, i, 2, english ? 16 : 23);
+    cell(p?.branch.value ?? '—', i, 3, 57, p ? COLORS[p.branch.element] : MUTED, 'serif');
+    cell(p ? p.branch.hiddenStems.map(h => h.value).join(' / ') : '—', i, 4, 22);
+    if (p && english) linesAt(p.branch.hiddenStems.map(h => `${h.value} / ${term(h.tenGod)}`), colCenter(i), rowY[5] + 22, 13, MUTED, 'middle', 22);
+    else cell(p ? p.branch.hiddenStems.map(h => term(h.tenGod)).join(' / ') : '—', i, 5, 16);
+    for (const [row, packed] of [[6, starChips[i]], [7, comboChips[i]]] as const) {
+      if (!packed.items.length) {
+        cell(shensha[i].status === 'hour_unknown' ? l.notCalculated : l.none, i, row, english ? 14 : 20, MUTED);
+        continue;
+      }
+      const top = rowY[row] + (heights[row] - packed.height) / 2;
+      for (const chip of packed.items) {
+        const x = colX(i) + 15 + chip.x, y = top + chip.y;
+        rect(x, y, chip.w, chip.h, PAPER, BORDER, 13);
+        linesAt(chip.lines, x + chip.w / 2, y + chipFont + 3, chipFont, MUTED, 'middle', chipFont + 5);
+      }
+    }
   });
-  text(l.hidden, 64, 769, 17, '#75675b');
-  text(l.elements, 64, 826, 25);
-  (Object.keys(COLORS) as FiveElement[]).forEach((el, i) => {
-    const x = 64 + i * 194;
-    rect(x, 854, 174, 100, '#f5ede0');
-    text(l.elementNames[i], x + 18, 889, 24, COLORS[el]);
-    text(
-      `${l.visible} ${chart.fiveElements.visible[el]} / ${l.hiddenCount} ${chart.fiveElements.hiddenStems[el]}`,
-      x + 18,
-      927,
-      locale === 'en' ? 15 : 17,
-      '#75675b',
-    );
+  text(l.rules, margin, tableBottom + 30, english ? 14 : 15, MUTED);
+  section('02', l.elements, margin, analysisY, 538);
+  section('03', l.gods, 619, analysisY, right);
+  line(582, analysisY - 30, 582, analysisY + 525);
+
+  const cx = 287, cy = analysisY + 265, radius = 158, nodeRadius = 47;
+  const first = ELEMENT_ORDER.indexOf(chart.dayMaster.element);
+  const cycle = ELEMENT_ORDER.map((_, i) => ELEMENT_ORDER[(first + i) % 5]);
+  const positions = Object.fromEntries(cycle.map((el, i) => {
+    const angle = (-90 + i * 72) * Math.PI / 180;
+    return [el, { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle), angle }];
+  })) as Record<FiveElement, { x: number; y: number; angle: number }>;
+  for (const [from, to] of CONTROLLING_EDGES) {
+    const a = positions[from], b = positions[to];
+    const distance = Math.hypot(b.x - a.x, b.y - a.y);
+    const dx = (b.x - a.x) / distance, dy = (b.y - a.y) / distance;
+    out.push(`<path data-edge="control:${from}:${to}" d="M${number(a.x + dx * (nodeRadius + 5))} ${number(a.y + dy * (nodeRadius + 5))}L${number(b.x - dx * (nodeRadius + 7))} ${number(b.y - dy * (nodeRadius + 7))}" stroke="#737e82" stroke-width="1.4" fill="none" marker-end="url(#control-arrow)"/>`);
+  }
+  for (const [from, to] of GENERATING_EDGES) {
+    const trim = 0.35, start = positions[from].angle + trim, end = positions[from].angle + 2 * Math.PI / 5 - trim;
+    out.push(`<path data-edge="generate:${from}:${to}" d="M${number(cx + radius * Math.cos(start))} ${number(cy + radius * Math.sin(start))}A${radius} ${radius} 0 0 1 ${number(cx + radius * Math.cos(end))} ${number(cy + radius * Math.sin(end))}" stroke="${GOLD}" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#generate-arrow)"/>`);
+  }
+  for (const entry of structure.elements) {
+    const p = positions[entry.element], color = COLORS[entry.element], master = entry.element === chart.dayMaster.element;
+    out.push(`<circle cx="${number(p.x)}" cy="${number(p.y)}" r="${nodeRadius}" fill="${PAPER}" stroke="${color}" stroke-width="1.8"/>`);
+    text(ELEMENT_LABELS['zh-CN'][ELEMENT_ORDER.indexOf(entry.element)], p.x, p.y + (english ? -3 : 2), english ? 35 : 39, color, 'middle', 'serif');
+    if (english) text(ELEMENT_LABELS.en[ELEMENT_ORDER.indexOf(entry.element)], p.x, p.y + 15, 12, color, 'middle');
+    text(`${entry.percent}%`, p.x, p.y + (english ? 34 : 27), 17, color, 'middle');
+    if (master) {
+      const w = english ? 81 : 44;
+      rect(p.x - w / 2, p.y + 39, w, 23, ACCENT, 'none', 3);
+      text(l.dayMaster, p.x, p.y + 55, english ? 11 : 13, '#fffaf5', 'middle');
+    }
+    const groups = entry.tenGods.map(term);
+    const groupLines = english ? groups : [groups.join(' / ')];
+    const groupY = master ? p.y - (english ? 76 : 63) : p.y + 73;
+    const groupSize = english ? 12 : 14;
+    const groupWidth = Math.max(...groupLines.map(s => width(s, groupSize)));
+    rect(p.x - groupWidth / 2 - 3, groupY - groupSize, groupWidth + 6, groupLines.length * 17 + 2, PAPER);
+    linesAt(groupLines, p.x, groupY, groupSize, color, 'middle', 17);
+  }
+  out.push(`<path d="M138 ${analysisY + 514}h48" fill="none" stroke="${GOLD}" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#generate-arrow)"/>`);
+  text(l.generating, 198, analysisY + 519, 15, MUTED);
+  out.push(`<path d="M338 ${analysisY + 514}h48" fill="none" stroke="#737e82" stroke-width="1.4" marker-end="url(#control-arrow)"/>`);
+  text(l.controlling, 398, analysisY + 519, 15, MUTED);
+
+  const barX = 765, barWidth = 191;
+  const maximum = Math.max(50, Math.ceil(Math.max(...structure.tenGods.map(g => g.percent)) / 25) * 25);
+  structure.tenGods.forEach((god, i) => {
+    const y = analysisY + 57 + i * 40;
+    text(term(god.name), 619, y + 5, english ? 15 : 21, COLORS[god.element]);
+    rect(barX, y - 12, barWidth, 14, '#eae4dc', 'none', 6);
+    rect(barX, y - 12, barWidth * god.percent / maximum, 14, COLORS[god.element], 'none', 6, `data-bar="${escape(god.name)}"`);
+    text(`${god.percent}%`, right, y + 5, 19, INK, 'end');
   });
-  text(
-    `${chart.conventions.timeCorrection === 'trueSolar' ? l.solar : l.civil}  /  ${l.boundary}: ${chart.conventions.dayBoundary === 'ziEarly' ? '23:00' : '00:00'}`,
-    64,
-    1004,
-    20,
-  );
-  chart.warnings.forEach((w, i) =>
-    text(
-      `${i === 0 ? l.warnings + ': ' : ''}${WARNINGS[locale][w.code]}`,
-      64,
-      1044 + i * 30,
-      17,
-      '#9e0027',
-    ),
-  );
-  text(l.notice, 64, height - 70, locale === 'en' ? 18 : 20, '#75675b');
-  text(
-    `${chart.schemaVersion}  /  ${chart.coreVersion}`,
-    64,
-    height - 38,
-    15,
-    '#967141',
-  );
-  chunks.push('</g></svg>');
-  return chunks.join('');
+  const axisY = analysisY + 461;
+  line(barX, axisY, barX + barWidth, axisY, GOLD);
+  for (const fraction of [0, 0.5, 1]) {
+    const x = barX + fraction * barWidth;
+    line(x, axisY, x, axisY + 5, GOLD);
+    text(`${maximum * fraction}${fraction === 1 ? '%' : ''}`, x, axisY + 25, 14, MUTED, 'middle');
+  }
+
+  line(margin, notesY - 21, right, notesY - 21);
+  text(l.stats, margin, notesY + 5, 18, INK);
+  text(`${l.total}  ${structure.total}`, right, notesY + 5, 16, MUTED, 'end');
+  linesAt(statsLines, margin, notesY + 33, 15, MUTED, 'start', 24);
+  let warningY = notesY + notesHeight + 18;
+  if (warningLines.length) {
+    text(l.warning, margin, warningY, 19, ACCENT);
+    warningY += 30;
+    for (const warning of warningLines) {
+      out.push(`<g data-warning="${warning.code}">`);
+      linesAt(warning.lines, margin + 14, warningY, 16, ACCENT, 'start', 24);
+      out.push('</g>');
+      warningY += warning.lines.length * 24 + 10;
+    }
+  }
+  const mode = chart.conventions.timeCorrection === 'trueSolar' ? recorded.hourKnown ? l.solar : l.skippedSolar : l.standard;
+  text(`${mode}  /  ${l.boundary} ${chart.conventions.dayBoundary === 'ziEarly' ? '23:00' : '00:00'}`, margin, height - 89, 15, MUTED);
+  text(l.notice, right, height - 89, 14, MUTED, 'end');
+  line(margin, height - 68, right, height - 68, GOLD);
+  text(l.footer, margin, height - 38, english ? 14 : 16, INK);
+  text(`${chart.schemaVersion} / ${chart.coreVersion}`, right, height - 38, 12, MUTED, 'end');
+  out.push('</svg>');
+  return out.join('');
 };
 
-export const renderBasicBaziPng = (
-  chart: BasicBaziResult,
-  locale: BasicBaziLocale = 'zh-CN',
-  options: BasicBaziImageOptions = {},
-): Buffer =>
-  new Resvg(renderBasicBaziSvg(chart, locale, options), {
-    font: {
-      fontFiles: [FONT],
-      loadSystemFonts: false,
-      defaultFontFamily: 'Yuanzi Chart Sans',
-    },
-  })
-    .render()
-    .asPng();
+export const renderBasicBaziPng = (chart: BasicBaziResult, locale: BasicBaziLocale = 'zh-CN', options: BasicBaziImageOptions = {}): Buffer => new Resvg(renderBasicBaziSvg(chart, locale, options), {
+  font: { fontFiles: FONTS, loadSystemFonts: false, defaultFontFamily: FAMILY.sans },
+}).render().asPng();

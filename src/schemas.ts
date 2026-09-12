@@ -90,6 +90,34 @@ const elementCountsSchema = z.strictObject({
   water: z.number().int().nonnegative(),
 });
 
+const shenshaIdSchema = z.enum(['tai_ji', 'hua_gai', 'tian_de_he', 'kong_wang', 'wen_chang', 'tian_yi', 'wang_shen', 'hong_luan']);
+const shenshaColumnSchema = z.strictObject({
+  status: z.enum(['calculated', 'hour_unknown']),
+  matches: z.array(z.strictObject({
+    id: shenshaIdSchema, name: z.string(),
+    basis: z.array(z.strictObject({
+      pillar: z.enum(['year', 'month', 'day', 'hour']),
+      part: z.enum(['stem', 'branch', 'pillar']), value: z.string(),
+    })),
+  })),
+  combinations: z.array(z.strictObject({ id: z.string(), name: z.string(), requires: z.array(shenshaIdSchema) })),
+});
+export const basicBaziStructureSchema = z.strictObject({
+  method: z.literal('equal-stem-occurrence/v1'), total: z.number().int().positive(),
+  elements: z.array(z.strictObject({
+    element: fiveElementSchema, count: z.number().int().nonnegative(),
+    percent: z.number().min(0).max(100), tenGods: z.array(tenGodSchema),
+  })).length(5),
+  tenGods: z.array(z.strictObject({
+    name: tenGodSchema, element: fiveElementSchema,
+    count: z.number().int().nonnegative(), percent: z.number().min(0).max(100),
+  })).length(10),
+  shensha: z.strictObject({
+    ruleSet: z.literal('yuanzi-shensha/v1'),
+    pillars: z.strictObject({ year: shenshaColumnSchema, month: shenshaColumnSchema, day: shenshaColumnSchema, hour: shenshaColumnSchema }),
+  }),
+});
+
 export const basicBaziResultSchema = z.strictObject({
   schemaVersion: z.literal('yuanzi-basic-bazi/v1'),
   coreVersion: z.string(),
@@ -142,6 +170,7 @@ export const basicBaziResultSchema = z.strictObject({
     visible: elementCountsSchema,
     hiddenStems: elementCountsSchema,
   }),
+  structure: basicBaziStructureSchema.optional(),
   warnings: z.array(z.strictObject({
     code: z.enum([
       'hour_unknown',

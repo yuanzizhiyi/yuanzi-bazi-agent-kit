@@ -7,7 +7,7 @@
 
 A local-first, deterministic basic Four Pillars (Bazi) engine, CLI, MCP server, and Agent Skill by Yuanzi Zhiyi.
 
-The public contract is intentionally narrow: calendar conversion, time-zone and true-solar-time handling, explicit day boundaries, four pillars, day master, ten gods, hidden stems, and unweighted five-element counts. The stable result schema is `yuanzi-basic-bazi/v1`.
+The calculation scope includes: calendar conversion, time-zone and true-solar-time handling, explicit day boundaries, four pillars, day master, ten gods, hidden stems, and unweighted five-element counts, composition shares, and a documented eight-shensha rule set. The stable result schema is `yuanzi-basic-bazi/v1`.
 
 [Chinese documentation](README.zh-CN.md)
 
@@ -34,9 +34,11 @@ Calculation is local, uses zero telemetry, and makes no network requests. See [s
 | stdio MCP | Two schema-first, read-only tools |
 | `SKILL.md` | Agent workflow and safety boundary |
 
-Luck cycles, shensha, compatibility, AI readings, reports, and advisor services are not part of the public core.
+Luck cycles, interpretation of shensha, compatibility, AI readings, reports, and advisor services are not part of the public core.
 
 ## Install with npm
+
+The source tree contains the **0.3.0 preview**. The pinned 0.2.1 commands below do not include the new chart layout or structure extension; use the source installation for this update.
 
 Requires Node.js 22.19 or later. Start the local MCP server:
 
@@ -72,13 +74,13 @@ npm test
 npm link
 ```
 
-The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, version `0.2.1`.
+The source repository is [yuanzizhiyi/yuanzi-bazi-agent-kit](https://github.com/yuanzizhiyi/yuanzi-bazi-agent-kit). The npm package is `yuanzi-bazi-agent-kit`, source version `0.3.0` (pending publication).
 
 ## Chart images
 
 MCP `calculate_basic_bazi_chart` returns `structuredContent.chart`, JSON text, readable facts, and an `image/png` content block. Clients that support MCP images can display the chart directly. The Skill also saves and displays a PNG by default.
 
-For CLI usage, append `--image chart.png` to `chart --stdin --format json`. JSON stays on stdout; a save confirmation goes to stderr. Choose an unused filename in an existing directory. Images contain birth/chart data: share them deliberately. Rendering uses the same paper and pillar design language as the main site, without its advanced calculations. It runs locally with a bundled font and no network calls.
+For CLI usage, append `--image chart.png` to `chart --stdin --format json`. JSON stays on stdout; a save confirmation goes to stderr. Choose an unused filename in an existing directory. Images contain birth/chart data: share them deliberately. Rendering uses the same paper and pillar design language as the main site, without its advanced calculations. It runs locally with bundled Noto-derived serif and sans-serif fonts and no network calls. The 2160px-wide report includes the highlighted day column, full pillar table, shensha and combinations, directed element relationships and all ten composition bars. See [chart structure and rules](references/chart-structure.md).
 
 ## CLI
 

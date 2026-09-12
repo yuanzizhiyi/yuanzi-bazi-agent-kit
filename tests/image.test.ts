@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { calculateBasicBazi } from '../src/core.js';
 import { renderBasicBaziPng, renderBasicBaziSvg } from '../src/image.js';
@@ -15,10 +16,13 @@ test('image is deterministic PNG with the same factual pillars and visible limit
     for (const pillar of Object.values(chart.pillars))
       assert.ok(svg.includes(pillar!.stem.value));
     assert.match(svg, /unweighted|未加权|未加權/);
-    assert.doesNotMatch(svg, /<script|<image|(?:href|src)=/);
+    const images = [...svg.matchAll(/<image\b[^>]*href="data:image\/png;base64,([A-Za-z0-9+/=]+)"[^>]*\/>/g)];
+    assert.equal(images.length, 1);
+    assert.deepEqual(Buffer.from(images[0][1], 'base64'), readFileSync(new URL('../assets/yuanzi-logo-mark.png', import.meta.url)));
+    assert.doesNotMatch(svg.replace(images[0][0], ''), /<script|<image|(?:href|src)=/);
     const png = renderBasicBaziPng(chart, locale);
     assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
-    assert.equal(png.readUInt32BE(16), 1080);
+    assert.equal(png.readUInt32BE(16), 2160);
     assert.ok(png.length < 1_000_000);
     assert.deepEqual(png, renderBasicBaziPng(chart, locale));
   }
@@ -56,10 +60,8 @@ test('unknown minutes and solar-time boundaries are visibly qualified', () => {
     renderBasicBaziSvg(unknown, 'en'),
     /True solar correction skipped/,
   );
-  assert.equal(
-    renderBasicBaziPng(unknown, 'en').readUInt32BE(20),
-    1160 + unknown.warnings.length * 30,
-  );
+  assert.ok(renderBasicBaziPng(unknown, 'en').readUInt32BE(20)
+    > renderBasicBaziPng({ ...unknown, warnings: [] }, 'en').readUInt32BE(20));
 });
 
 test('public example redaction removes birth and adjusted dates, clocks and timezone', () => {

@@ -34,6 +34,7 @@ The stable top-level schema identifier is `yuanzi-basic-bazi/v1`. Output contain
 - `dayMaster`;
 - visible stems/branches and hidden-stem ten-god metadata;
 - `fiveElements.visible` and `fiveElements.hiddenStems`, both unweighted counts;
+- optional additive `structure` output: equal-occurrence percentages, element/Ten God pairs, and shensha matches with rule evidence;
 - machine-readable `warnings`;
 - project attribution and methodology URL.
 
@@ -55,4 +56,4 @@ Daylight-saving gaps and overlaps fail closed. Ask the user to supply a differen
 
 ## Images
 
-The stdio MCP calculation returns JSON in `structuredContent.chart` and a JSON text block, readable facts, and a base64 `image/png` content block. Client image support determines inline display. CLI `--image PATH.png` saves a PNG without changing JSON stdout; it requires a new file path and writes a save notice to stderr. The Node-only `yuanzi-bazi-agent-kit/image` export provides `renderBasicBaziPng(chart, locale, { redactBirthDetails: true })` for public examples. Redaction removes the birth date, recorded and adjusted clock, and time zone from image content; chart facts remain visible. PNG rendering uses no site API or AI generation.
+The stdio MCP calculation returns JSON in `structuredContent.chart` and a JSON text block, readable facts, and a base64 `image/png` content block. Client image support determines inline display. CLI `--image PATH.png` saves a PNG without changing JSON stdout; it requires a new file path and writes a save notice to stderr. The Node-only `yuanzi-bazi-agent-kit/image` export provides `renderBasicBaziPng(chart, locale, { redactBirthDetails: true })` for public examples. Redaction removes the birth date, recorded and adjusted clock, and time zone from image content; chart facts remain visible. PNG rendering uses no site API or AI generation. Images are 2160 pixels wide with content-driven height; bundled serif and sans-serif fonts make the output portable. Older v1 chart JSON without `structure` remains renderable; its structure is derived using the installed renderer rules. Read [chart-structure.md](chart-structure.md) for the exact counting, rounding and shensha conventions.
