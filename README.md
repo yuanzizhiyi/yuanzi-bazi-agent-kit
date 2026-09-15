@@ -1,5 +1,7 @@
 ![Yuanzi Bazi Agent Kit — MCP · Agent Skill · Local Charts](https://raw.githubusercontent.com/yuanzizhiyi/yuanzi-bazi-agent-kit/main/docs/images/readme-cover.png)
 
+[![M8ven Score](https://m8ven.ai/badge/mcp/yuanzizhiyi/yuanzi-bazi-agent-kit)](https://m8ven.ai/mcp/yuanzizhiyi/yuanzi-bazi-agent-kit)
+
 # Yuanzi Bazi Agent Kit
 
 [Yuanzi Zhiyi website](https://yuanzizhiyi.com) · [简体中文](README.zh-CN.md)
